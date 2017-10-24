@@ -81,5 +81,7 @@ for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
     print()
 
 print('-' * max_width)
-print('hits to mirror.lst, excluding: non-empty referrer (browser hits), user-agents with only a single IP')
+print('excluded: non-empty referrer (browser hits), user-agents with only a single IP')
+print('-' * max_width)
+print('%-*s | %5d       | %-45s | %6d       |' % (max_agent_width, 'totals', grand_total_ips, '', grand_total))
 print('-' * max_width)
