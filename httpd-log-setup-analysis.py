@@ -3,24 +3,43 @@
 import re
 import sys
 
-class Agent():
+class Agent(object):
     def __init__(self):
         self.ips = set()
         self.status = {}
         self.total = 0
 
-def breakdown(data, title):
-    print()
-    print('%-16s | count ' % (title))
-    print('-' * 33)
+class OS(object):
+    def __init__(self):
+        self.ips = set()
+        self.total = 0
+
+    @staticmethod
+    def add(collection, key, ip):
+        if key not in collection:
+            collection[key] = OS()
+
+        collection[key].total += 1
+        collection[key].ips.add(ip)
+
+def breakdown(collection, title):
     t = 0
+    tips = 0
+    max_width = len(title)
 
-    for i in data:
-        t += data[i]
+    for i in collection:
+        t += collection[i].total
+        tips += len(collection[i].ips)
+        max_width = max(max_width, len(i))
 
-    for i in sorted(data.keys(), key=lambda k: data[k], reverse=True):
-        print('%-16s | %6d (%2d%%) | ' % (i, data[i], 100*data[i]/t))
-    print('-' * 33)
+    print()
+    print('-' * (max_width +  31))
+    print('%-*s | unique IPs  | count        |' % (max_width, title))
+    print('-' * (max_width +  31))
+
+    for i in sorted(collection.keys(), key=lambda k: collection[k].total, reverse=True):
+        print('%-*s | %5d (%2d%%) | %6d (%2d%%) | ' % (max_width, i, len(collection[i].ips), 100*len(collection[i].ips)/tips, collection[i].total, 100*collection[i].total/t))
+    print('-' * (max_width +  31))
 
 data = {}
 
@@ -73,14 +92,20 @@ for l in sys.stdin:
                 os = mc.group(2)
                 bitness = mc.group(3)
 
-                setup_versions[ver] = setup_versions.get(ver, 0) + 1
+                OS.add(setup_versions, ver, ip)
                 if os:
-                    setup_oses[os] = setup_oses.get(os, 0) + 1
+                    OS.add(setup_oses, os, ip)
                 if bitness:
-                    setup_bitnesses[bitness] = setup_bitnesses.get(bitness, 0) + 1
+                    OS.add(setup_bitnesses, bitness, ip)
+            else:
+                ver = "Unknown (<=2.879)"
+                OS.add(setup_versions, ver, ip)
 
 grand_total = 0
 grand_total_ips = 0
+other = 0
+other_ips = 0
+
 for agent in data:
     total = 0
     for s in data[agent].status:
@@ -92,11 +117,15 @@ for agent in data:
 max_agent_width = 25
 max_width = 79 + max_agent_width
 
-print('%-*s | %-11s | %-45s | %s' % (max_agent_width, 'user-agent', 'unique IPs', 'response status count', 'total'))
+print('hits to mirrors.lst, excluding non-empty referrer (browser hits)')
+print('-' * max_width)
+print('%-*s | %-11s | %-45s | %-12s |' % (max_agent_width, 'user-agent', 'unique IPs', 'response status count', 'total'))
 print('-' * max_width)
 
 for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
     if len(data[agent].ips) <= 1 or data[agent].total <= 1:
+        other += data[agent].total
+        other_ips += len(data[agent].ips)
         continue
 
     if len(agent) > max_agent_width:
@@ -115,8 +144,7 @@ for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
     print('%6d (%2d%%) | ' % (data[agent].total, 100*data[agent].total/grand_total), end='')
     print()
 
-print('-' * max_width)
-print('excluded: non-empty referrer (browser hits), user-agents with only a single IP')
+print('%-*s | %5d       | %-45s | %6d       |' % (max_agent_width, 'other (agents with 1 IP)', other_ips, '', other))
 print('-' * max_width)
 print('%-*s | %5d       | %-45s | %6d       |' % (max_agent_width, 'totals', grand_total_ips, '', grand_total))
 print('-' * max_width)
