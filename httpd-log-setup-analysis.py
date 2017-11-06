@@ -34,7 +34,7 @@ def breakdown(collection, title):
 
     print()
     print('-' * (max_width +  31))
-    print('%-*s | unique IPs  | count        |' % (max_width, title))
+    print('%-*s | unique IPs  | requests     |' % (max_width, title))
     print('-' * (max_width +  31))
 
     for i in sorted(collection.keys(), key=lambda k: collection[k].total, reverse=True):
@@ -119,7 +119,7 @@ max_width = 79 + max_agent_width
 
 print('hits to mirrors.lst, excluding non-empty referrer (browser hits)')
 print('-' * max_width)
-print('%-*s | %-11s | %-45s | %-12s |' % (max_agent_width, 'user-agent', 'unique IPs', 'response status count', 'total'))
+print('%-*s | %-11s | %-45s | %-12s |' % (max_agent_width, 'user-agent', 'unique IPs', 'response status count', 'requests'))
 print('-' * max_width)
 
 for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
