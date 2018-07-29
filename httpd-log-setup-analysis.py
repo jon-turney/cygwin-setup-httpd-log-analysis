@@ -99,6 +99,10 @@ for l in sys.stdin:
                     if os:
                         OS.add(setup_oses, os, ip)
                     if bitness:
+                        # compensate for a bug in 2.893
+                        if bitness == 'WoW64-14c':
+                            bitness = 'Win32'
+
                         OS.add(setup_bitnesses, bitness, ip)
                 else:
                     ver = "Unknown (<=2.879)"
