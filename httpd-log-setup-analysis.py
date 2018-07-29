@@ -42,6 +42,7 @@ def breakdown(collection, title):
     print()
 
 data = {}
+statuses = {}
 
 setup_versions = {}
 setup_oses = {}
@@ -85,6 +86,7 @@ for l in sys.stdin:
             if agent not in data:
                 data[agent] = Agent()
 
+            statuses[status] = statuses.get(status, 0) + 1
             data[agent].status[status] = data[agent].status.get(status, 0) + 1
             data[agent].ips.add(ip)
 
@@ -126,11 +128,12 @@ for agent in data:
     grand_total_ips += len(data[agent].ips)
 
 max_agent_width = 25
-max_width = 80 + max_agent_width
+max_status_width = (len(statuses) * 12) - 3
+max_width = 35 + max_agent_width + max_status_width
 
 print('hits to mirrors.lst, excluding non-empty referrer (browser hits)')
 print('-' * max_width)
-print('|%-*s | %-11s | %-45s | %-12s |' % (max_agent_width, 'user-agent', 'unique IPs', 'response status count', 'requests'))
+print('|%-*s | %-11s | %-12s | %-*s |' % (max_agent_width, 'user-agent', 'unique IPs', 'requests', max_status_width, 'requests by response status'))
 print('-' * max_width)
 
 for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
@@ -147,17 +150,17 @@ for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
     print('|%-*s | ' % (max_agent_width, short_agent), end='')
     ips = len(data[agent].ips)
     print('%5d (%2d%%) | ' % (ips, 100*ips/grand_total_ips), end='')
-    for s in ['200', '206', '304', '403' ]:
+    print('%6d (%2d%%) | ' % (data[agent].total, 100*data[agent].total/grand_total), end='')
+    for s in sorted(statuses.keys()):
         if s in data[agent].status:
             print('%s %5d | ' % (s, data[agent].status[s]), end='')
         else:
             print('          | ', end='')
-    print('%6d (%2d%%) | ' % (data[agent].total, 100*data[agent].total/grand_total), end='')
     print()
 
-print('|%-*s | %5d       | %-45s | %6d       |' % (max_agent_width, 'other (agents with 1 IP)', other_ips, '', other))
+print('|%-*s | %5d       | %6d       | %-*s |' % (max_agent_width, 'other (agents with 1 IP)', other_ips, other, max_status_width, ''))
 print('-' * max_width)
-print('|%-*s | %5d       | %-45s | %6d       |' % (max_agent_width, 'totals', grand_total_ips, '', grand_total))
+print('|%-*s | %5d       | %6d       | %-*s |' % (max_agent_width, 'totals', grand_total_ips, grand_total, max_status_width, ''))
 print('-' * max_width)
 print()
 
