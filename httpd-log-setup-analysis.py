@@ -32,14 +32,14 @@ def breakdown(collection, title):
         tips += len(collection[i].ips)
         max_width = max(max_width, len(i))
 
-    print()
-    print('-' * (max_width +  31))
-    print('%-*s | unique IPs  | requests     |' % (max_width, title))
-    print('-' * (max_width +  31))
+    print('-' * (max_width +  32))
+    print('|%-*s | unique IPs  | requests     |' % (max_width, title))
+    print('-' * (max_width +  32))
 
     for i in sorted(collection.keys(), key=lambda k: collection[k].total, reverse=True):
-        print('%-*s | %5d (%2d%%) | %6d (%2d%%) | ' % (max_width, i, len(collection[i].ips), 100*len(collection[i].ips)/tips, collection[i].total, 100*collection[i].total/t))
-    print('-' * (max_width +  31))
+        print('|%-*s | %5d (%2d%%) | %6d (%2d%%) | ' % (max_width, i, len(collection[i].ips), 100*len(collection[i].ips)/tips, collection[i].total, 100*collection[i].total/t))
+    print('-' * (max_width +  32))
+    print()
 
 data = {}
 
@@ -122,11 +122,11 @@ for agent in data:
     grand_total_ips += len(data[agent].ips)
 
 max_agent_width = 25
-max_width = 79 + max_agent_width
+max_width = 80 + max_agent_width
 
 print('hits to mirrors.lst, excluding non-empty referrer (browser hits)')
 print('-' * max_width)
-print('%-*s | %-11s | %-45s | %-12s |' % (max_agent_width, 'user-agent', 'unique IPs', 'response status count', 'requests'))
+print('|%-*s | %-11s | %-45s | %-12s |' % (max_agent_width, 'user-agent', 'unique IPs', 'response status count', 'requests'))
 print('-' * max_width)
 
 for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
@@ -140,7 +140,7 @@ for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
     else:
         short_agent = agent
 
-    print('%-*s | ' % (max_agent_width, short_agent), end='')
+    print('|%-*s | ' % (max_agent_width, short_agent), end='')
     ips = len(data[agent].ips)
     print('%5d (%2d%%) | ' % (ips, 100*ips/grand_total_ips), end='')
     for s in ['200', '206', '304', '403' ]:
@@ -151,12 +151,15 @@ for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
     print('%6d (%2d%%) | ' % (data[agent].total, 100*data[agent].total/grand_total), end='')
     print()
 
-print('%-*s | %5d       | %-45s | %6d       |' % (max_agent_width, 'other (agents with 1 IP)', other_ips, '', other))
+print('|%-*s | %5d       | %-45s | %6d       |' % (max_agent_width, 'other (agents with 1 IP)', other_ips, '', other))
 print('-' * max_width)
-print('%-*s | %5d       | %-45s | %6d       |' % (max_agent_width, 'totals', grand_total_ips, '', grand_total))
+print('|%-*s | %5d       | %-45s | %6d       |' % (max_agent_width, 'totals', grand_total_ips, '', grand_total))
 print('-' * max_width)
+print()
 
 breakdown(setup_versions, "setup version")
 breakdown(setup_oses, "OS version")
 breakdown(setup_bitnesses, "bitness")
+
+print('hits to setup executables')
 breakdown(setup_downloads, "downloads")
