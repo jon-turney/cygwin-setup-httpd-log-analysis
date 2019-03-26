@@ -73,15 +73,15 @@ for l in sys.stdin:
 
             original_agent = agent
 
-            agent = re.sub(r' appid: [^)]*', '', agent)
+            # do some canonicalization of agent string
             agent = re.sub(r'User-Agent: (.*)', r'\1', agent)
-            agent = re.sub(r'.* \(compatible.*; (.*[Bb]ot/.*)\)', r'\1', agent)
-            agent = re.sub(r'.* (Edge/\S*)', r'Edge/(various)', agent)
-            agent = re.sub(r'.* (Safari/\S*).*', r'Safari/(various)', agent)
-            agent = re.sub(r'.* (Firefox/\S*)', r'Firefox/(various)', agent)
-            agent = re.sub(r'Python-urllib/\S*', r'Python-urllib/(various)', agent)
+            agent = re.sub(r'.* (Edge/\S*)', r'Edge/\1', agent)
+            agent = re.sub(r'.* (Safari/\S*).*', r'Safari/\1', agent)
+            agent = re.sub(r'.* (Firefox/\S*)', r'Firefox/\1', agent)
             agent = re.sub(r'.* WindowsPowerShell/(\S*)', r'WindowsPowerShell/\1', agent)
             agent = re.sub(r'Cygwin-Setup/(\S*) .*', r'Cygwin-Setup/\1', agent)
+            if not agent.startswith('Cygwin'):
+                agent = re.sub(r'(.*?)/\S*', r'\1/*', agent)
 
             if agent not in data:
                 data[agent] = Agent()
