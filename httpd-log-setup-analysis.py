@@ -2,6 +2,7 @@
 
 import re
 import sys
+import time
 
 class Agent(object):
     def __init__(self):
@@ -165,6 +166,8 @@ max_agent_width = 25
 max_status_width = (len(statuses) * 12) - 3
 max_width = 35 + max_agent_width + max_status_width
 
+print('cygwin setup report for week ending %s' % (time.strftime('%Y%m%d')))
+print()
 print('hits to mirrors.lst, excluding non-empty referrer (browser hits)')
 print('-' * max_width)
 print('|%-*s | %-11s | %-12s | %-*s |' % (max_agent_width, 'user-agent', 'unique IPs', 'requests', max_status_width, 'requests by response status'))
