@@ -41,11 +41,44 @@ def breakdown(collection, title):
     print('-' * (max_width +  32))
     print()
 
+def os_major(os):
+    (major, minor) = os.rsplit('.', 1)
+    if major == '10.0':
+        for (m, v) in reversed([
+            (0    , 'Technical Preview'),
+            (10240, '1507 (Threshold 1)'),
+            (10568, '1511 (Threshold 2)'),
+            (14393, '1607 (Redstone 1)'),
+            (15063, '1703 (Redstone 2)'),
+            (16299, '1709 (Redstone 3)'),
+            (17134, '1803 (Redstone 4)'),
+            (17763, '1809 (Redstone 5)'),
+            (18362, '1903 (19H1)'),
+            (18363, 'TBA'),
+        ]):
+            if int(minor) >= m:
+                major += (' ' + v)
+                break
+    else:
+        for (m, v) in [
+                ('6.0', 'Windows Vista'),
+                ('6.1', 'Windows 7'),
+                ('6.2', 'Windows 8'),
+                ('6.3', 'Windows 8.1'),
+        ]:
+            if m == major:
+                major += ('  ' + v)
+                break
+
+    return major
+
+
 data = {}
 statuses = {}
 
 setup_versions = {}
 setup_oses = {}
+setup_oses_major = {}
 setup_bitnesses = {}
 setup_downloads = {}
 
@@ -100,6 +133,7 @@ for l in sys.stdin:
                     OS.add(setup_versions, ver, ip)
                     if os:
                         OS.add(setup_oses, os, ip)
+                        OS.add(setup_oses_major, os_major(os), ip)
                     if bitness:
                         # compensate for a bug in 2.893
                         if bitness == 'WoW64-14c':
@@ -166,6 +200,7 @@ print()
 
 breakdown(setup_versions, "setup version")
 breakdown(setup_oses, "OS version")
+breakdown(setup_oses_major, "OS version (major)")
 breakdown(setup_bitnesses, "bitness")
 
 print('hits to setup executables')
