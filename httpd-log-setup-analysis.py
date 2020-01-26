@@ -115,8 +115,8 @@ for l in sys.stdin:
             agent = re.sub(r'.* (Firefox/\S*)', r'Firefox/\1', agent)
             agent = re.sub(r'.* WindowsPowerShell/(\S*)', r'WindowsPowerShell/\1', agent)
             agent = re.sub(r'Cygwin-Setup/(\S*) .*', r'Cygwin-Setup/\1', agent)
-            if not agent.startswith('Cygwin'):
-                agent = re.sub(r'(.*?)/\S*', r'\1/*', agent)
+            agent = re.sub(r'Cygwin Setup', r'Cygwin-Setup/unknown', agent)
+            agent = re.sub(r'(.*?)/\S*', r'\1/*', agent)
 
             if agent not in data:
                 data[agent] = Agent()
