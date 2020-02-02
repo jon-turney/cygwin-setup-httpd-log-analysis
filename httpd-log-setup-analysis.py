@@ -86,6 +86,7 @@ setup_downloads = {}
 
 r = re.compile(r'(\S*) (\S*) (\S*) (\[.*\]) \"GET /(\S*) .*\" (\S*) (\S*) \"(.*)\" "(.*)"')
 rc = re.compile(r'Cygwin-Setup/(\S*)(?: \(Windows NT (\S*);(\S*)\)|$)')
+rfr = re.compile(r'Setup.exe/(\S*)')
 
 for l in sys.stdin:
     m = re.match(r, l)
@@ -114,9 +115,11 @@ for l in sys.stdin:
             agent = re.sub(r'.* (Safari/\S*).*', r'Safari/\1', agent)
             agent = re.sub(r'.* (Firefox/\S*)', r'Firefox/\1', agent)
             agent = re.sub(r'.* WindowsPowerShell/(\S*)', r'WindowsPowerShell/\1', agent)
+            agent = re.sub(r'Mozilla/\S* \(compatible; (.*)', r'\1', agent)
+            agent = re.sub(r'Setup.exe/(\S*) .*', r'Cygwin-Setup/\1', agent)  # some FR patched versions of setup identify as 'Setup.exe'
             agent = re.sub(r'Cygwin-Setup/(\S*) .*', r'Cygwin-Setup/\1', agent)
             agent = re.sub(r'Cygwin Setup', r'Cygwin-Setup/unknown', agent)
-            agent = re.sub(r'(.*?)/\S*', r'\1/*', agent)
+            agent = re.sub(r'^(\S*?)/\S*', r'\1/*', agent)
 
             if agent not in data:
                 data[agent] = Agent()
@@ -124,6 +127,12 @@ for l in sys.stdin:
             statuses[status] = statuses.get(status, 0) + 1
             data[agent].status[status] = data[agent].status.get(status, 0) + 1
             data[agent].ips.add(ip)
+
+            if original_agent.startswith('Setup.exe'):
+                mc = re.match(rfr, original_agent)
+                if mc:
+                    ver = mc.group(1)
+                    OS.add(setup_versions, ver, ip)
 
             if original_agent.startswith('Cygwin'):
                 mc = re.match(rc, original_agent)
@@ -164,7 +173,7 @@ for agent in data:
     grand_total_ips += len(data[agent].ips)
 
 max_agent_width = 25
-max_status_width = (len(statuses) * 12) - 3
+max_status_width = (len(statuses) * 13) - 3
 max_width = 35 + max_agent_width + max_status_width
 
 print('cygwin setup report for week ending %s' % (time.strftime('%Y%m%d')))
@@ -191,9 +200,9 @@ for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
     print('%6d (%2d%%) | ' % (data[agent].total, 100*data[agent].total/grand_total), end='')
     for s in sorted(statuses.keys()):
         if s in data[agent].status:
-            print('%s %5d | ' % (s, data[agent].status[s]), end='')
+            print('%s %6d | ' % (s, data[agent].status[s]), end='')
         else:
-            print('          | ', end='')
+            print('           | ', end='')
     print()
 
 print('|%-*s | %5d       | %6d       | %-*s |' % (max_agent_width, 'other (agents with 1 IP)', other_ips, other, max_status_width, ''))
