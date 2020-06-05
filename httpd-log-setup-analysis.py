@@ -75,6 +75,24 @@ def os_major(os):
     return major
 
 
+def print_agent_data(agent, data):
+    if len(agent) > max_agent_width:
+        short_agent = agent[:max_agent_width]
+    else:
+        short_agent = agent
+
+    print('|%-*s | ' % (max_agent_width, short_agent), end='')
+    ips = len(data.ips)
+    print('%5d (%4.1f%%) | ' % (ips, 100*ips/grand_total_ips), end='')
+    print('%6d (%4.1f%%) | ' % (data.total, 100*data.total/grand_total), end='')
+    for s in sorted(statuses.keys()):
+        if s in data.status:
+            print('%s %6d | ' % (s, data.status[s]), end='')
+        else:
+            print('           | ', end='')
+    print()
+
+
 data = {}
 statuses = {}
 
@@ -161,8 +179,7 @@ for l in sys.stdin:
 
 grand_total = 0
 grand_total_ips = 0
-other = 0
-other_ips = 0
+other = Agent()
 
 for agent in data:
     total = 0
@@ -183,29 +200,19 @@ print('-' * max_width)
 print('|%-*s | %-13s | %-14s | %-*s |' % (max_agent_width, 'user-agent', 'unique IPs', 'requests', max_status_width, 'requests by response status'))
 print('-' * max_width)
 
+# aggregate data for agents with a single IP
+for agent in list(data.keys()):
+    if len(data[agent].ips) <= 1:
+        other.total += data[agent].total
+        other.ips.update(data[agent].ips)
+        for s in data[agent].status:
+            other.status[s] = other.status.get(s, 0) + data[agent].status[s]
+        del data[agent]
+
 for agent in sorted(data.keys(), key=lambda k: data[k].total, reverse=True):
-    if len(data[agent].ips) <= 1 or data[agent].total <= 1:
-        other += data[agent].total
-        other_ips += len(data[agent].ips)
-        continue
+    print_agent_data(agent, data[agent])
+print_agent_data('other (agents with 1 IP)', other)
 
-    if len(agent) > max_agent_width:
-        short_agent = agent[:max_agent_width]
-    else:
-        short_agent = agent
-
-    print('|%-*s | ' % (max_agent_width, short_agent), end='')
-    ips = len(data[agent].ips)
-    print('%5d (%4.1f%%) | ' % (ips, 100*ips/grand_total_ips), end='')
-    print('%6d (%4.1f%%) | ' % (data[agent].total, 100*data[agent].total/grand_total), end='')
-    for s in sorted(statuses.keys()):
-        if s in data[agent].status:
-            print('%s %6d | ' % (s, data[agent].status[s]), end='')
-        else:
-            print('           | ', end='')
-    print()
-
-print('|%-*s | %5d         | %6d         | %-*s |' % (max_agent_width, 'other (agents with 1 IP)', other_ips, other, max_status_width, ''))
 print('-' * max_width)
 print('|%-*s | %5d         | %6d         | %-*s |' % (max_agent_width, 'totals', grand_total_ips, grand_total, max_status_width, ''))
 print('-' * max_width)
