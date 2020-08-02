@@ -42,6 +42,16 @@ def breakdown(collection, title):
     print('-' * (max_width +  36))
     print()
 
+def compatible(ver):
+    v = '0'
+    m = re.match(r'([0-9.]+)', ver)
+    if m:
+      v = m.group(1)
+    if float(v) >= 2.895:
+      return 'compatible (>=2.895)'
+    else:
+      return 'incompatible (<2.895)'
+
 def os_major(os):
     (major, minor) = os.rsplit('.', 1)
     if major == '10.0':
@@ -98,6 +108,7 @@ data = {}
 statuses = {}
 
 setup_versions = {}
+setup_compat = {}
 setup_oses = {}
 setup_oses_major = {}
 setup_bitnesses = {}
@@ -147,6 +158,7 @@ for l in sys.stdin:
             data[agent].status[status] = data[agent].status.get(status, 0) + 1
             data[agent].ips.add(ip)
 
+            ver = None
             if original_agent.startswith('Setup.exe'):
                 mc = re.match(rfr, original_agent)
                 if mc:
@@ -173,6 +185,10 @@ for l in sys.stdin:
                 else:
                     ver = "Unknown (<=2.879)"
                     OS.add(setup_versions, ver, ip)
+
+            if ver:
+                OS.add(setup_compat, compatible(ver), ip)
+
         elif (path == 'setup-x86_64.exe') and (status == '200'):
             OS.add(setup_downloads, 'x86_64', ip)
         elif (path == 'setup-x86.exe') and (status == '200') and (ip != '125.174.164.21'):
@@ -220,6 +236,7 @@ print('-' * max_width)
 print()
 
 breakdown(setup_versions, "setup version")
+breakdown(setup_compat, "setup compatibility")
 breakdown(setup_oses, "OS version")
 breakdown(setup_oses_major, "OS version (major)")
 breakdown(setup_bitnesses, "bitness")
