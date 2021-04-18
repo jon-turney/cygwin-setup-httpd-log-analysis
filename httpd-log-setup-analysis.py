@@ -113,10 +113,11 @@ setup_compat = {}
 setup_oses = {}
 setup_oses_major = {}
 setup_bitnesses = {}
+setup_langs = {}
 setup_downloads = {}
 
 r = re.compile(r'(\S*) (\S*) (\S*) (\[.*\]) \"GET /(\S*) .*\" (\S*) (\S*) \"(.*)\" "(.*)"')
-rc = re.compile(r'Cygwin-Setup/(\S*)(?: \(Windows NT (\S*);(\S*)\)|$)')
+rc = re.compile(r'Cygwin-Setup/(\S*)(?: \(Windows NT (\S*)\)|$)')
 rfr = re.compile(r'Setup.exe/(\S*)')
 
 for l in sys.stdin:
@@ -170,19 +171,28 @@ for l in sys.stdin:
                 mc = re.match(rc, original_agent)
                 if mc:
                     ver = mc.group(1)
-                    os = mc.group(2)
-                    bitness = mc.group(3)
-
                     OS.add(setup_versions, ver, ip)
-                    if os:
-                        OS.add(setup_oses, os, ip)
-                        OS.add(setup_oses_major, os_major(os), ip)
-                    if bitness:
-                        # compensate for a bug in 2.893
-                        if bitness == 'WoW64-14c':
-                            bitness = 'Win32'
 
-                        OS.add(setup_bitnesses, bitness, ip)
+                    if mc.group(2):
+                        details = mc.group(2).split(';')
+                        details.extend([''] * 3)
+                        details = details[:3]
+
+                        os = details[0]
+                        bitness = details[1]
+                        lang = details[2]
+
+                        if os:
+                            OS.add(setup_oses, os, ip)
+                            OS.add(setup_oses_major, os_major(os), ip)
+                        if bitness:
+                            # compensate for a bug in 2.893
+                            if bitness == 'WoW64-14c':
+                                bitness = 'Win32'
+
+                            OS.add(setup_bitnesses, bitness, ip)
+                        if lang:
+                            OS.add(setup_langs, lang, ip)
                 else:
                     ver = "Unknown (<=2.879)"
                     OS.add(setup_versions, ver, ip)
@@ -241,6 +251,7 @@ breakdown(setup_compat, "setup compatibility")
 breakdown(setup_oses, "OS version")
 breakdown(setup_oses_major, "OS version (major)")
 breakdown(setup_bitnesses, "bitness")
+breakdown(setup_langs, "UI language")
 
 print('hits to setup executables')
 breakdown(setup_downloads, "downloads")
