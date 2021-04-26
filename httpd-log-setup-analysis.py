@@ -3,6 +3,7 @@
 import re
 import sys
 import time
+from locale import windows_locale
 
 class Agent(object):
     def __init__(self):
@@ -204,6 +205,9 @@ for l in sys.stdin:
 
                             OS.add(setup_bitnesses, bitness, ip)
                         if lang:
+                            lang_name = windows_locale.get(int(lang, 16), None)
+                            if lang_name:
+                                lang = '%s (%s)' % (lang, lang_name)
                             OS.add(setup_langs, lang, ip)
                 else:
                     ver = "Unknown (<=2.879)"
