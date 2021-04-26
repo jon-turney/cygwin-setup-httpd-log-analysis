@@ -191,6 +191,17 @@ for l in sys.stdin:
                             if bitness == 'WoW64-14c':
                                 bitness = 'Win32'
 
+                            # compensate for a bug in 2.908
+                            if bitness == 'Win64-on-Win32':
+                                bitness = 'Win64'
+
+                            # canonicalize pre-2.908 reporting
+                            if bitness == 'WoW64':
+                                bitness = 'Win32-on-Win64'
+
+                            if bitness == 'WoW64-ARM64':
+                                bitness = 'Win32-on-ARM64'
+
                             OS.add(setup_bitnesses, bitness, ip)
                         if lang:
                             OS.add(setup_langs, lang, ip)
