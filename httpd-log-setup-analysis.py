@@ -2,7 +2,7 @@
 
 import re
 import sys
-import time
+from datetime import datetime
 from locale import windows_locale
 
 class Agent(object):
@@ -109,6 +109,7 @@ def print_agent_data(agent, data):
 
 data = {}
 statuses = {}
+times = []
 
 setup_versions = {}
 setup_compat = {}
@@ -118,7 +119,7 @@ setup_bitnesses = {}
 setup_langs = {}
 setup_downloads = {}
 
-r = re.compile(r'(\S*) (\S*) (\S*) (\[.*\]) \"GET /(\S*) .*\" (\S*) (\S*) \"(.*)\" "(.*)"')
+r = re.compile(r'(\S*) (\S*) (\S*) \[(.*)\] \"GET /(\S*) .*\" (\S*) (\S*) \"(.*)\" "(.*)"')
 rc = re.compile(r'Cygwin-Setup/(\S*)(?: \(Windows NT (\S*)\)|$)')
 rfr = re.compile(r'Setup.exe/(\S*)')
 
@@ -134,6 +135,8 @@ for l in sys.stdin:
         size = m.group(7)
         referer = m.group(8)
         agent = m.group(9)
+
+        times.append(datetime.strptime(timestamp, '%d/%b/%Y:%H:%M:%S %z'))
 
         if path == "mirrors.lst":
             # ignore lines which have a referer: these are browsers following a link
@@ -237,7 +240,7 @@ max_agent_width = 25
 max_status_width = (len(statuses) * 13) - 3
 max_width = 39 + max_agent_width + max_status_width
 
-print('cygwin setup report for week ending %s' % (time.strftime('%Y%m%d')))
+print('cygwin setup report from %s to %s' % (min(times), max(times)))
 print()
 print('hits to mirrors.lst, excluding non-empty referrer (browser hits)')
 print('-' * max_width)
