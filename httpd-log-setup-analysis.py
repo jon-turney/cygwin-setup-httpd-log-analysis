@@ -136,7 +136,9 @@ for l in sys.stdin:
         referer = m.group(8)
         agent = m.group(9)
 
-        times.append(datetime.strptime(timestamp, '%d/%b/%Y:%H:%M:%S %z'))
+        timestamp = datetime.strptime(timestamp, '%d/%b/%Y:%H:%M:%S %z')
+        if timestamp.timestamp():
+            times.append(timestamp)
 
         if path == "mirrors.lst":
             # ignore lines which have a referer: these are browsers following a link
