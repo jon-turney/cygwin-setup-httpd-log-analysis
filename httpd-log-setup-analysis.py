@@ -61,7 +61,9 @@ def compatible(ver):
 
 def os_major(os):
     (major, minor) = os.rsplit('.', 1)
-    if major == '10.0':
+    if major == '10.0' and int(minor) >= 22000:
+      major += (' Windows 11 21H2')
+    elif major == '10.0':
         for (m, v) in reversed([
             (0    , 'Technical Preview'),
             (10240, '1507 (Threshold 1)'),
@@ -76,10 +78,11 @@ def os_major(os):
             (19041, '2004 (20H1)'),
             (19042, '(20H2)'),
             (19043, '(21H1)'),
-            (19044, 'TBA'),
+            (19044, '(21H2)'),
+            (19045, 'TBA'),
         ]):
             if int(minor) >= m:
-                major += (' ' + v)
+                major += (' Windows 10 ' + v)
                 break
     else:
         for (m, v) in [
