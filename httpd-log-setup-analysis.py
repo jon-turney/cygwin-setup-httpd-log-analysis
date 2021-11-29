@@ -24,10 +24,16 @@ class OS(object):
         collection[key].total += 1
         collection[key].ips.add(ip)
 
-def breakdown(collection, title):
+def breakdown(collection, title, by=None):
     t = 0
     tips = 0
     max_width = len(title)
+
+    if by:
+        kl = lambda k: getattr(collection[k], by)
+    else:
+        # by default 'natual sort' to order embedded numbers correctly
+        kl = lambda s: [int(t) if t.isdigit() else t.lower() for t in re.split('(\d+)', s)]
 
     for i in collection:
         t += collection[i].total
@@ -38,7 +44,7 @@ def breakdown(collection, title):
     print('|%-*s | unique IPs    | requests       |' % (max_width, title))
     print('-' * (max_width +  36))
 
-    for i in sorted(collection.keys(), key=lambda k: collection[k].total, reverse=True):
+    for i in sorted(collection.keys(), key=kl, reverse=(by != None)):
         print('|%-*s | %5d (%4.1f%%) | %6d (%4.1f%%) | ' % (max_width, i, len(collection[i].ips), 100*len(collection[i].ips)/tips, collection[i].total, 100*collection[i].total/t))
     print('-' * (max_width +  36))
     print()
@@ -68,8 +74,8 @@ def os_major(os):
             (18362, '1903 (19H1)'),
             (18363, '1909 (19H2)'),
             (19041, '2004 (20H1)'),
-            (19042, '20H2'),
-            (19043, '21H1'),
+            (19042, '(20H2)'),
+            (19043, '(21H1)'),
             (19044, 'TBA'),
         ]):
             if int(minor) >= m:
@@ -271,8 +277,8 @@ breakdown(setup_versions, "setup version")
 breakdown(setup_compat, "setup compatibility")
 breakdown(setup_oses, "OS version")
 breakdown(setup_oses_major, "OS version (major)")
-breakdown(setup_bitnesses, "bitness")
-breakdown(setup_langs, "UI language")
+breakdown(setup_bitnesses, "bitness", 'total')
+breakdown(setup_langs, "UI language", 'total')
 
 print('hits to setup executables')
-breakdown(setup_downloads, "downloads")
+breakdown(setup_downloads, "downloads", 'total')
