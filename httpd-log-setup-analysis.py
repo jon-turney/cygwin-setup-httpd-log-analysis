@@ -126,6 +126,7 @@ setup_oses = {}
 setup_oses_major = {}
 setup_bitnesses = {}
 setup_langs = {}
+setup_symlinkcap = {}
 setup_downloads = {}
 
 r = re.compile(r'(\S*) (\S*) (\S*) \[(.*)\] \"GET /(\S*) .*\" (\S*) (\S*) \"(.*)\" "(.*)"')
@@ -191,12 +192,15 @@ for l in sys.stdin:
 
                     if mc.group(2):
                         details = mc.group(2).split(';')
-                        details.extend([''] * 3)
-                        details = details[:3]
+                        if len(details) < 3:
+                            details.extend([''] * (3 - len(details)))
+                        if len(details) < 4:
+                            details.append(None)
 
                         os = details[0]
                         bitness = details[1]
                         lang = details[2]
+                        symlinkcap = details[3]
 
                         if os:
                             OS.add(setup_oses, os, ip)
@@ -223,6 +227,8 @@ for l in sys.stdin:
                             if lang_name:
                                 lang = '%s (%s)' % (lang, lang_name)
                             OS.add(setup_langs, lang, ip)
+                        if symlinkcap is not None:
+                            OS.add(setup_symlinkcap, symlinkcap, ip)
                 else:
                     ver = "Unknown (<=2.879)"
                     OS.add(setup_versions, ver, ip)
@@ -282,6 +288,7 @@ breakdown(setup_oses, "OS version")
 breakdown(setup_oses_major, "OS version (major)")
 breakdown(setup_bitnesses, "bitness", 'total')
 breakdown(setup_langs, "UI language", 'total')
+breakdown(setup_symlinkcap, "Symlink capability")
 
 print('hits to setup executables')
 breakdown(setup_downloads, "downloads", 'total')
