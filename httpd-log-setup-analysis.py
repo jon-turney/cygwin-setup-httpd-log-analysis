@@ -49,15 +49,18 @@ def breakdown(collection, title, by=None):
     print('-' * (max_width +  36))
     print()
 
+
+MIN_COMPATIBLE_VERSION = 2.903
+
 def compatible(ver):
     v = '0'
     m = re.match(r'([0-9.]+)', ver)
     if m:
       v = m.group(1)
-    if float(v) >= 2.895:
-      return 'compatible (>=2.895)'
+    if float(v) >= MIN_COMPATIBLE_VERSION:
+      return 'compatible (>=%s)' % MIN_COMPATIBLE_VERSION
     else:
-      return 'incompatible (<2.895)'
+      return 'incompatible (<%s)' % MIN_COMPATIBLE_VERSION
 
 def os_major(os):
     (major, minor) = os.rsplit('.', 1)
