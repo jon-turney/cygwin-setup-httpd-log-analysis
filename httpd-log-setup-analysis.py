@@ -33,7 +33,7 @@ def breakdown(collection, title, by=None):
         kl = lambda k: getattr(collection[k], by)
     else:
         # by default 'natual sort' to order embedded numbers correctly
-        kl = lambda s: [int(t) if t.isdigit() else t.lower() for t in re.split('(\d+)', s)]
+        kl = lambda s: [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
 
     for i in collection:
         t += collection[i].total
