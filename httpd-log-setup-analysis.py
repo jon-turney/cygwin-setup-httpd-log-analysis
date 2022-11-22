@@ -65,28 +65,41 @@ def compatible(ver):
 def os_major(os):
     (major, minor) = os.rsplit('.', 1)
     if major == '10.0' and int(minor) >= 22000:
-      major += (' Windows 11 21H2')
-    elif major == '10.0':
-        for (m, v) in reversed([
-            (0    , 'Technical Preview'),
-            (10240, '1507 (Threshold 1)'),
-            (10568, '1511 (Threshold 2)'),
-            (14393, '1607 (Redstone 1)'),
-            (15063, '1703 (Redstone 2)'),
-            (16299, '1709 (Redstone 3)'),
-            (17134, '1803 (Redstone 4)'),
-            (17763, '1809 (Redstone 5)'),
-            (18362, '1903 (19H1)'),
-            (18363, '1909 (19H2)'),
-            (19041, '2004 (20H1)'),
-            (19042, '(20H2)'),
-            (19043, '(21H1)'),
-            (19044, '(21H2)'),
-            (19045, 'TBA'),
-        ]):
-            if int(minor) >= m:
-                major += (' Windows 10 ' + v)
+        for (m, v) in [
+                (22000, '(21H2)'),
+                (22621, '(22H2)'),
+        ]:
+            if int(minor) == m:
                 break
+        else:
+            v = '(Unknown)'
+        major += (' Windows 11 ' + v)
+
+    elif major == '10.0':
+        for (m, v) in [
+                (0    , 'Technical Preview'),
+                (10240, '1507 (Threshold 1)'),
+                (10568, '1511 (Threshold 2)'),
+                (14393, '1607 (Redstone 1)'),
+                (15063, '1703 (Redstone 2)'),
+                (16299, '1709 (Redstone 3)'),
+                (17134, '1803 (Redstone 4)'),
+                (17763, '1809 (Redstone 5)'),
+                (18362, '1903 (19H1)'),
+                (18363, '1909 (19H2)'),
+                (19041, '2004 (20H1)'),
+                (19042, '(20H2)'),
+                (19043, '(21H1)'),
+                (19044, '(21H2)'),
+                (19045, '(22H2)'),
+                (20348, '(22H2), Server'),
+        ]:
+            if int(minor) == m:
+                break
+        else:
+            v = '(Unknown)'
+        major += (' Windows 10 ' + v)
+
     else:
         for (m, v) in [
                 ('6.0', 'Windows Vista'),
