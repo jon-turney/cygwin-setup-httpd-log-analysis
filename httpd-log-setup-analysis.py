@@ -68,6 +68,7 @@ def os_major(os):
         for (m, v) in [
                 (22000, '(21H2)'),
                 (22621, '(22H2)'),
+                (22631, '(23H2)'),
         ]:
             if int(minor) == m:
                 break
