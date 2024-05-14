@@ -238,6 +238,10 @@ for l in sys.stdin:
                             if bitness == 'WoW64-ARM64':
                                 bitness = 'Win32-on-ARM64'
 
+                            # canonicalize pre-2.932 reporting
+                            bitness = bitness.replace('Win32', 'x86')
+                            bitness = bitness.replace('Win64', 'x86_64')
+
                             OS.add(setup_bitnesses, bitness, ip)
                         if lang:
                             lang_name = windows_locale.get(int(lang, 16), None)
