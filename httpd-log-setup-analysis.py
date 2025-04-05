@@ -243,6 +243,9 @@ for l in sys.stdin:
                             bitness = bitness.replace('Win32', 'x86')
                             bitness = bitness.replace('Win64', 'x86_64')
 
+                            # canonicalize ARM case
+                            bitness = bitness.replace('ARM64', 'arm64')
+
                             OS.add(setup_bitnesses, bitness, ip)
                         if lang:
                             lang_name = windows_locale.get(int(lang, 16), None)
